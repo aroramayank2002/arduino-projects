@@ -30,7 +30,7 @@ void setup() {
   tft.fillScreen(ST77XX_GREEN);
   delay(2000);
 
-  tft.fillScreen(ST77XX_BLUE);
+  tft.fillScreen(ST77XX_MAGENTA);
   delay(2000);
 
   tft.fillScreen(ST77XX_WHITE);
