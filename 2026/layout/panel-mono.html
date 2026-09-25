@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TADMAK 1.0 Line Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Saira+Condensed:wght@500;600;700&display=swap">
+<style>
+/* ============================================================
+   Two-colour sheet: black ink on white paper, nothing else.
+   Hierarchy comes from line weight, type weight and hatching —
+   never from a tint, so the drawing survives a photocopier.
+   ============================================================ */
+:root{ color-scheme: light only; }
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:#FFFFFF;color:#000000;
+  font:400 15px/1.55 "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:16px;padding-block:0 60px}
+
+.masthead{border-bottom:2px solid #000;padding-block:26px 12px;
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:18px 32px}
+.mast-id{flex:1 1 320px;min-width:260px}
+.eyebrow{font:600 11px/1 "IBM Plex Mono", ui-monospace, monospace;
+  letter-spacing:.16em;text-transform:uppercase;color:#000;margin:0 0 10px}
+.eyebrow a{color:#000;border-bottom:1px solid #000;text-decoration:none;padding-bottom:1px}
+.eyebrow a:hover{background:#000;color:#fff}
+h1{font:600 clamp(30px,5.2vw,46px)/1.02 "Saira Condensed", "Arial Narrow", sans-serif;
+  letter-spacing:.012em;text-transform:uppercase;margin:0;text-wrap:balance}
+.subtitle{margin:8px 0 0;max-width:62ch;font-size:14.5px}
+code{font:400 .92em/1 "IBM Plex Mono", ui-monospace, monospace}
+.register{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));
+  border:1px solid #000;flex:0 1 auto}
+.register div{padding:7px 11px;border-right:1px solid #000;min-width:0}
+.register div:last-child{border-right:0}
+.register dt{font:500 9.5px/1 "IBM Plex Mono", monospace;letter-spacing:.12em;
+  text-transform:uppercase;margin:0 0 5px}
+.register dd{margin:0;font:600 13px/1.2 "IBM Plex Mono", monospace;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;
+  padding-block:14px;border-bottom:1px solid #000;
+  position:sticky;top:env(safe-area-inset-top, 0px);background:#fff;z-index:20}
+.ctl-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctl-label{font:500 10px/1 "IBM Plex Mono", monospace;letter-spacing:.13em;text-transform:uppercase}
+.seg{display:flex;border:1px solid #000}
+.seg button{appearance:none;border:0;border-right:1px solid #000;background:#fff;color:#000;
+  font:500 12px/1 "IBM Plex Mono", monospace;padding:7px 11px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:#000;color:#fff}
+.seg button:hover:not([aria-pressed="true"]){text-decoration:underline}
+.toggle{display:inline-flex;align-items:center;gap:6px;
+  font:400 12.5px/1 "IBM Plex Sans", sans-serif;cursor:pointer;user-select:none}
+.toggle input{accent-color:#000;margin:0;width:14px;height:14px}
+:where(button,input,a,[tabindex]):focus-visible{outline:2px solid #000;outline-offset:2px}
+
+.viewport{margin-top:20px;overflow:auto;background:#fff;border:1px solid #000;padding:14px}
+.sheet-svg{display:block;height:auto;margin-inline:auto;max-width:none;background:#fff}
+.zoom-fit .sheet-svg{width:100%}
+.zoom-100 .sheet-svg{width:420mm}
+.zoom-150 .sheet-svg{width:630mm}
+.viewnote{margin:8px 0 0;font:400 11.5px/1.4 "IBM Plex Mono", monospace}
+
+/* ---- SVG: one ink; weight and hatch do all the work ---- */
+.sheet-bg{fill:#fff}
+.cutline{fill:none;stroke:#000;stroke-width:.2}
+.frame{fill:none;stroke:#000;stroke-width:.8}
+.hair{fill:none;stroke:#000;stroke-width:.3}
+.gridline{stroke:#000;stroke-width:.06}
+.block-rect{fill:none;stroke:#000;stroke-width:.35;stroke-dasharray:6 1.2 1.2 1.2}
+.block-band{fill:none;stroke:#000;stroke-width:.5}
+.block-title{fill:#000;font:600 3.1px/1 "Saira Condensed", sans-serif;letter-spacing:.09em}
+.block-count{fill:#000;font:400 2.2px/1 "IBM Plex Mono", monospace}
+.fp{fill:none;stroke:#000;stroke-width:.5}
+.cut{fill:none;stroke:#000;stroke-width:.3;stroke-dasharray:1.6 1.1}
+.hole{fill:none;stroke:#000;stroke-width:.22}
+.holemark{stroke:#000;stroke-width:.15}
+.ref{fill:#000;font:600 2.5px/1 "IBM Plex Mono", monospace}
+.ref-c{fill:#000;font:600 2.3px/1 "IBM Plex Mono", monospace;text-anchor:middle;dominant-baseline:middle}
+.nm{fill:#000;font:400 2.1px/1 "IBM Plex Sans", sans-serif}
+.pins{fill:#000;font:600 2.15px/1 "IBM Plex Mono", monospace}
+.dim{fill:#000;font:400 1.75px/1 "IBM Plex Mono", monospace;text-anchor:end}
+.detail{stroke:#000;stroke-width:.2;fill:none}
+.tagbox{fill:#fff;stroke:#000;stroke-width:.25}
+.tagtext{fill:#000;font:600 2.4px/1 "IBM Plex Mono", monospace;text-anchor:middle;dominant-baseline:middle}
+.comp{cursor:pointer}
+.comp:hover .fp,.comp:focus .fp{stroke-width:1}
+.comp:focus{outline:none}
+.comp.sel .fp{stroke-width:1.1;fill:url(#hatch)}
+.comp.dim-out{opacity:.22}
+.railline{stroke:#000;stroke-width:.3}
+.railtap{fill:#fff;stroke:#000;stroke-width:.25}
+.raillabel{fill:#000;font:500 1.9px/1 "IBM Plex Mono", monospace}
+.pb-title{fill:#000;font:600 2.4px/1 "Saira Condensed", sans-serif;letter-spacing:.1em}
+.pb-cell{stroke:#000;stroke-width:.14}
+.pb-free{fill:#fff}
+.pb-used{fill:#000}
+.pb-tick{fill:#000;font:400 1.6px/1 "IBM Plex Mono", monospace;text-anchor:middle}
+.pb-key{fill:#000;font:400 1.8px/1 "IBM Plex Mono", monospace}
+.pb-hdr{fill:#000;font:500 1.9px/1 "IBM Plex Mono", monospace}
+.tb-rect{fill:none;stroke:#000;stroke-width:.6}
+.tb-div{stroke:#000;stroke-width:.25}
+.tb-key{fill:#000;font:400 1.75px/1 "IBM Plex Mono", monospace;letter-spacing:.06em}
+.tb-val{fill:#000;font:600 2.5px/1 "IBM Plex Mono", monospace}
+.tb-big{fill:#000;font:600 3.6px/1 "Saira Condensed", sans-serif;letter-spacing:.06em}
+.note-t{fill:#000;font:600 2.6px/1 "Saira Condensed", sans-serif;letter-spacing:.1em}
+.note{fill:#000;font:400 2.15px/1 "IBM Plex Sans", sans-serif}
+.sheet-title{fill:#000;font:600 6.4px/1 "Saira Condensed", sans-serif;letter-spacing:.07em}
+.sheet-sub{fill:#000;font:400 2.5px/1 "IBM Plex Mono", monospace;letter-spacing:.04em}
+.tileline{stroke:#000;stroke-width:.4;stroke-dasharray:6 1.5 1.5 1.5}
+.tiletext{fill:#000;font:500 2.4px/1 "IBM Plex Mono", monospace;text-anchor:middle}
+.regmark{stroke:#000;stroke-width:.3;fill:none}
+.no-grid .grid-layer{display:none}
+.no-holes .hole,.no-holes .holemark{display:none}
+.no-dims .dim{display:none}
+.no-pins .pins{display:none}
+.no-tile .tile-layer{display:none}
+
+section{margin-top:52px}
+.sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  border-bottom:2px solid #000;padding-bottom:9px;margin-bottom:18px}
+h2{font:600 22px/1.1 "Saira Condensed", sans-serif;letter-spacing:.08em;text-transform:uppercase;margin:0}
+.sec-head p{margin:0;font-size:13px;flex:1 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chip{appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+  border:1px solid #000;background:#fff;color:#000;
+  font:500 12px/1 "IBM Plex Mono", monospace;padding:7px 11px}
+.chip .code{width:16px;height:16px;flex:none;border:1px solid #000;
+  display:inline-flex;align-items:center;justify-content:center;
+  font:600 10px/1 "IBM Plex Mono", monospace}
+.chip[aria-pressed="true"]{background:#000;color:#fff}
+.chip[aria-pressed="true"] .code{border-color:#fff}
+.tablewrap{overflow-x:auto;border:1px solid #000}
+table{border-collapse:collapse;width:100%;min-width:780px;font-size:13px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid #000;vertical-align:top}
+thead th{position:sticky;top:0;background:#fff;
+  font:600 10px/1.2 "IBM Plex Mono", monospace;letter-spacing:.11em;
+  text-transform:uppercase;border-bottom:2px solid #000}
+tbody tr{cursor:pointer}
+tbody tr:hover td{text-decoration:underline}
+tbody tr.sel{box-shadow:inset 4px 0 0 #000}
+tbody tr.sel td{font-weight:600}
+tbody tr[hidden]{display:none}
+td.ref-cell{font:600 12.5px/1.4 "IBM Plex Mono", monospace;white-space:nowrap}
+td.mono{font:400 12px/1.4 "IBM Plex Mono", monospace;font-variant-numeric:tabular-nums}
+td.pin-cell{font:600 12.5px/1.4 "IBM Plex Mono", monospace;white-space:nowrap}
+td.src{font:400 11.5px/1.4 "IBM Plex Mono", monospace}
+.badge{display:inline-flex;align-items:center;gap:5px;
+  font:500 10px/1 "IBM Plex Mono", monospace;letter-spacing:.08em;
+  text-transform:uppercase;padding:4px 6px;border:1px solid #000}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:26px}
+.cols h3{font:600 12px/1 "IBM Plex Mono", monospace;letter-spacing:.12em;text-transform:uppercase;
+  margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid #000}
+.cols p,.cols li{font-size:13.5px;margin:0 0 9px;max-width:62ch}
+.cols ol,.cols ul{margin:0;padding-left:20px}
+.cols li{margin-bottom:7px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font:400 12.5px/1.5 "IBM Plex Mono", monospace}
+.kv dt{white-space:nowrap;font-weight:600}
+.kv dd{margin:0;font-variant-numeric:tabular-nums}
+.verdict{margin-top:12px;padding:10px 12px;border:1px solid #000;border-left-width:4px;font-size:13.5px}
+footer{margin-top:52px;padding-top:16px;border-top:1px solid #000;
+  font:400 12px/1.6 "IBM Plex Mono", monospace}
+
+.print-only{display:none}
+@media print{
+  body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .masthead,.controls,.viewnote,section,footer,.screen-only{display:none !important}
+  .viewport{margin:0;padding:0;border:0;overflow:visible;background:#fff}
+  .sheet-svg{width:auto !important}
+  .print-only{display:block}
+  .tile-page{break-after:page;page-break-after:always}
+  .tile-page:last-child{break-after:auto;page-break-after:auto}
+  body.mode-a4 #a3view{display:none}
+  body.mode-a3 #a4view{display:none}
+}
+@media screen{ #a4view{display:none} }
+</style>
+</head>
+<body class="mode-a3">
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="mast-id">
+      <p class="eyebrow">DIB · Arduino Projects · 2026 · <a href="index.html">Colour version</a></p>
+      <h1>TADMAK 1.0<br>Line Sheet</h1>
+      <p class="subtitle">The same panel as the colour sheet, redrawn in a single ink. Function is
+        carried by the letter in each part's corner — <b>P</b>ower, <b>C</b>ontroller, <b>S</b>ensor,
+        <b>A</b>ctuator, <b>D</b>isplay, <b>W</b>iring — rather than by hue, so nothing is lost to a
+        mono laser printer, a photocopy, or a colour-blind reader.</p>
+    </div>
+    <dl class="register">
+      <div><dt>Sheet</dt><dd>ISO A3</dd></div>
+      <div><dt>Size</dt><dd>420 × 297</dd></div>
+      <div><dt>Scale</dt><dd>1 : 1</dd></div>
+      <div><dt>Parts</dt><dd id="reg-parts">—</dd></div>
+      <div><dt>Pins used</dt><dd id="reg-pins">—</dd></div>
+      <div><dt>Fill</dt><dd id="reg-fill">—</dd></div>
+    </dl>
+  </header>
+
+  <div class="controls screen-only">
+    <div class="ctl-group">
+      <span class="ctl-label">View</span>
+      <div class="seg" id="zoomSeg" role="group" aria-label="Drawing zoom">
+        <button type="button" data-zoom="fit" aria-pressed="true">Fit</button>
+        <button type="button" data-zoom="100" aria-pressed="false">1:1</button>
+        <button type="button" data-zoom="150" aria-pressed="false">150%</button>
+      </div>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-label">Layers</span>
+      <label class="toggle"><input type="checkbox" id="lyPins" checked> Mega pins</label>
+      <label class="toggle"><input type="checkbox" id="lyGrid" checked> 10 mm grid</label>
+      <label class="toggle"><input type="checkbox" id="lyHoles" checked> M3 holes</label>
+      <label class="toggle"><input type="checkbox" id="lyDims" checked> Sizes</label>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-label">Print</span>
+      <div class="seg" id="modeSeg" role="group" aria-label="Print sheet size">
+        <button type="button" data-mode="a3" aria-pressed="true">A3 · 1 sheet</button>
+        <button type="button" data-mode="a4" aria-pressed="false">2 × A4 portrait</button>
+      </div>
+      <button type="button" class="chip" id="printBtn">Print sheet</button>
+    </div>
+  </div>
+
+  <div class="viewport zoom-fit" id="viewport">
+    <svg id="a3view" class="sheet-svg" viewBox="0 0 420 297" width="420mm" height="297mm"
+         role="img" aria-label="A3 front panel placement sketch, 420 by 297 millimetres, with Arduino Mega pin assignments"></svg>
+    <div id="a4view" class="print-only">
+      <div class="tile-page"><svg class="sheet-svg" viewBox="0 0 210 297" width="210mm" height="297mm" aria-hidden="true"></svg></div>
+      <div class="tile-page"><svg class="sheet-svg" viewBox="210 0 210 297" width="210mm" height="297mm" aria-hidden="true"></svg></div>
+    </div>
+  </div>
+  <p class="viewnote screen-only">Screen pixels lie — set the browser to 100 % and pick <strong>1:1</strong>, or print, before measuring. Click any footprint to find it in the pin schedule.</p>
+
+  <section id="bom">
+    <div class="sec-head">
+      <h2>Mega pin schedule</h2>
+      <p>Filter by function, or click a row to locate the part on the sheet.</p>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filter by function"></div>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Ref</th><th scope="col">Component</th><th scope="col">Function</th>
+            <th scope="col">Mega pins</th><th scope="col">Footprint</th>
+            <th scope="col">Mounting</th><th scope="col">Sketch</th>
+          </tr>
+        </thead>
+        <tbody id="bomBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="notes">
+    <div class="sec-head">
+      <h2>Sheet &amp; wiring</h2>
+      <p>Why A3, how the pins were allocated, and the one rule that saves the board.</p>
+    </div>
+    <div class="cols">
+      <div>
+        <h3>Why A3, not A4</h3>
+        <div class="kv" id="areaKv"></div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+      <div>
+        <h3>How the pins fall out</h3>
+        <ul>
+          <li><strong>Reserved, untouched:</strong> <code>0 / 1</code> are Serial over USB — leave them free or the Serial Monitor fights the wiring.</li>
+          <li><strong>I²C on 20 / 21</strong> carries three parts on one pair: BH1750 <code>0x23</code>, OLED <code>0x3C</code>, PCA9685 <code>0x40</code>. No address collisions, so they share the rail — which is exactly what <code>jatin/Practical_I2c_comunication</code> demonstrates.</li>
+          <li><strong>Hardware SPI on 51 / 52</strong> serves the TFT; its control lines sit on <code>10 / 9 / 8</code>, matching <code>jatin/128_160_TFT_MODULE</code>.</li>
+          <li><strong>PWM for motion:</strong> the L298N enables take <code>2 / 3</code>, the servo takes <code>6</code>. Pins <code>44–46</code> are deliberately left clear — the Servo library claims Timer5 and kills <code>analogWrite</code> on them.</li>
+          <li><strong>The high block 34–49</strong> takes everything that is just on or off: the reed, the touch pad, the ultrasonic pair, the gas sensor's digital out, and the MAX6675's soft SPI.</li>
+          <li><strong>Room to grow:</strong> only <span id="pinsUsedInline">—</span> of 70 pins are claimed. The Mega is over-provisioned on purpose — new modules drop onto JP1 without re-planning anything.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Build rules</h3>
+        <p><strong>Current.</strong> Servos and the L298N never draw through the Mega's 5 V pin. They take <strong>PS1</strong>, the buck converter, on its own pair, with grounds commoned once at <strong>TB1</strong>. A stalling SG90 pulls close to an amp; the Mega's regulator gives up long before that.</p>
+        <p><strong>Everything is 5 V.</strong> One controller means no level shifting anywhere on the panel — that is the reason to standardise on the Mega for a teaching kit, and the reason its 54 pins matter.</p>
+        <h3 style="margin-top:22px">Panel &amp; hardware</h3>
+        <ol>
+          <li>3 mm MDF or acrylic at 420 × 297, edges broken R3.</li>
+          <li>Solid outline = module on M3 × 6 standoffs, drill <strong>⌀3.2</strong> at the four marks.</li>
+          <li>Dashed inner window = cut through: displays, switches, jacks, encoder shaft, LEDs, buzzer, touch pad.</li>
+          <li>Print at 100 %, spray-mount to the stock, drill through, peel. Verify a few footprints with calipers first — vendors vary a millimetre or two.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    2026/layout/panel-mono.html · TADMAK 1.0 · Drawing DIB-KIT-2026-FP-01 Rev D, mono ·   Single controller: Arduino Mega 2560 · parts from 2026/jatin ·
+    <span id="srcCount">—</span> source sketches
+  </footer>
+</div>
+
+<style id="pageRule">@page{size:A3 landscape;margin:0}</style>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. Sheet geometry — all values in millimetres, 1 unit = 1 mm
+   ============================================================ */
+var SHEET = {w:420, h:297, margin:10};
+
+var BLOCKS = [
+  {id:"tad", t:"TADMAK 1.0", sub:"POWER + CONTROLLER", x:12,  y:30,  w:186, h:98},
+  {id:"sen", t:"SENSORS",                              x:202, y:30,  w:96,  h:98},
+  {id:"hmi", t:"DISPLAY & INDICATORS",                 x:302, y:30,  w:106, h:98},
+  {id:"bus", t:"I\u00B2C BUS RAIL",                    x:12,  y:131, w:396, h:10, bare:true},
+  {id:"pro", t:"PROTOTYPING",                          x:12,  y:144, w:100, h:97},
+  {id:"drv", t:"DRIVE & ACTUATE",                      x:116, y:144, w:292, h:97}
+];
+
+var CLASSES = {
+  power:   {label:"Power",      code:"P"},
+  control: {label:"Controller", code:"C"},
+  sense:   {label:"Sensor",     code:"S"},
+  act:     {label:"Actuator",   code:"A"},
+  disp:    {label:"Display",    code:"D"},
+  infra:   {label:"Wiring",     code:"W"}
+};
+
+/* Parts. x,y = top-left on the sheet; w,h = true module footprint.
+   pins = label drawn on the sketch. d/a = pins claimed, for the budget strip.
+   mount: standoff (M3 holes) | cutout (through-panel window) | clamp (bracket) */
+var PARTS = [
+  /* --- TADMAK 1.0 : power in --- */
+  {ref:"PWR1", name:"DC inlet \u00B7 switch \u00B7 fuse", cls:"power", mount:"cutout",
+   x:16, y:41, w:58, h:24, pins:"12 V DC in", d:[], a:[], src:"\u2014"},
+  {ref:"PS1", name:"LM2596 buck \u2192 5 V 3 A", cls:"power", mount:"standoff",
+   x:16, y:69, w:45, h:25, pins:"servo / logic 5 V", d:[], a:[], src:"\u2014"},
+  {ref:"TB1", name:"Bus terminal 12V / 5V / GND", cls:"infra", mount:"standoff",
+   x:16, y:98, w:60, h:18, pins:"one common ground", d:[], a:[], src:"\u2014"},
+  {ref:"BJ1", name:"4 mm test jacks", cls:"infra", mount:"cutout",
+   x:16, y:118, w:40, h:8, pins:"+V / GND", d:[], a:[], src:"\u2014"},
+
+  /* --- TADMAK 1.0 : the one controller --- */
+  {ref:"U1", name:"Arduino Mega 2560", cls:"control", mount:"standoff",
+   x:84, y:41, w:101.5, h:53.4, pins:"54 digital \u00B7 16 analogue \u00B7 5 V",
+   d:[], a:[], src:"jatin/Testing_Jig_ArduinoMega", render:"mega"},
+
+  /* --- SENSORS --- */
+  {ref:"S1", name:"HC-SR04 ultrasonic", cls:"sense", mount:"cutout",
+   x:206, y:41, w:45, h:20, pins:"TRIG 34 \u00B7 ECHO 35", d:[34,35], a:[],
+   src:"jatin/ultrasonic_servo"},
+  {ref:"S2", name:"MQ-2 gas", cls:"sense", mount:"cutout",
+   x:257, y:41, w:32, h:22, pins:"A0 \u00B7 DO 36", d:[36], a:["A0"],
+   src:"jatin/MQ_GAS_SENSOR"},
+  {ref:"S3", name:"BH1750 lux", cls:"sense", mount:"standoff",
+   x:206, y:71, w:21, h:16, pins:"I\u00B2C 0x23", d:[], a:[],
+   src:"jatin/BH1750_Light_lux_Sensor"},
+  {ref:"S5", name:"MAX6675 + K probe", cls:"sense", mount:"standoff",
+   x:234, y:71, w:25, h:15, pins:"SO49 CS47 CLK48", d:[47,48,49], a:[],
+   src:"jatin/Max6675_thermocouple"},
+  {ref:"S6", name:"TTP223 touch pad", cls:"sense", mount:"cutout",
+   x:267, y:71, w:24, h:15, pins:"37", d:[37], a:[], src:"jatin/TOUCH_TTP223"},
+  {ref:"S7", name:"Reed switch", cls:"sense", mount:"standoff",
+   x:206, y:101, w:36, h:15, pins:"38 \u00B7 active low", d:[38], a:[],
+   src:"jatin/read_switch_module"},
+
+  /* --- DISPLAY & INDICATORS --- */
+  {ref:"DS1", name:"ST7735 1.8\u2033 TFT", cls:"disp", mount:"cutout",
+   x:306, y:41, w:56, h:34, pins:"CS 10 \u00B7 DC 9 \u00B7 RST 8 \u00B7 SPI 51/52",
+   d:[8,9,10,51,52], a:[], src:"jatin/128_160_TFT_MODULE"},
+  {ref:"DS2", name:"SSD1306 OLED", cls:"disp", mount:"cutout",
+   x:306, y:81, w:27, h:27, pins:"I\u00B2C 0x3C", d:[], a:[],
+   src:"jatin/Practical_I2c_comunication"},
+  {ref:"BZ1", name:"Piezo buzzer", cls:"act", mount:"cutout",
+   x:339, y:81, w:20, h:15, pins:"5", d:[5], a:[], src:"jatin/ultrasonic_servo"},
+  {ref:"J2", name:"SPI display header", cls:"infra", mount:"standoff",
+   x:366, y:41, w:38, h:18, pins:"5V GND CS10 DC9 RST8 51 52", d:[], a:[], src:"\u2014"},
+  {ref:"J3", name:"I\u00B2C display header", cls:"infra", mount:"standoff",
+   x:366, y:64, w:38, h:18, pins:"5V 3V3 GND SDA20 SCL21", d:[], a:[], src:"\u2014"},
+  {ref:"J4", name:"HMI header", cls:"infra", mount:"standoff",
+   x:366, y:87, w:38, h:18, pins:"5V GND BZ5 \u00B7 32 33 spare", d:[32,33], a:[],
+   src:"\u2014"},
+  {ref:"J5", name:"Display power rail", cls:"power", mount:"standoff",
+   x:306, y:111, w:53, h:15, pins:"5V \u00B7 3V3 \u00B7 GND \u00D76", d:[], a:[], src:"\u2014"},
+
+  /* --- I\u00B2C BUS RAIL --- */
+  {ref:"TB2", name:"I\u00B2C bus rail", cls:"infra", mount:"standoff",
+   x:12, y:131, w:396, h:10, pins:"SDA 20 \u00B7 SCL 21", d:[20,21], a:[],
+   src:"jatin/Practical_I2c_comunication", render:"rail"},
+
+  /* --- PROTOTYPING --- */
+  {ref:"BB1", name:"Breadboard 400-point", cls:"infra", mount:"clamp",
+   x:17, y:159, w:82, h:55, pins:"free wiring area", d:[], a:[], src:"\u2014",
+   render:"breadboard"},
+  {ref:"JP1", name:"Spare header rail", cls:"infra", mount:"standoff",
+   x:17, y:221, w:82, h:14, pins:"2.54 mm \u00B7 spare pins", d:[], a:[], src:"\u2014"},
+
+  /* --- DRIVE & ACTUATE : band A, the rotating things --- */
+  {ref:"U6", name:"L298N dual H-bridge", cls:"act", mount:"standoff",
+   x:124, y:155, w:43, h:43, pins:"ENA 2 \u00B7 ENB 3 \u00B7 IN 22 23 24 25",
+   d:[2,3,22,23,24,25], a:[], src:"jatin/L298N_MOTOR_DRIVER"},
+  {ref:"M2", name:"TT DC gearmotor \u00D72", cls:"act", mount:"clamp",
+   x:186, y:154, w:70, h:46, pins:"driven by U6", d:[], a:[],
+   src:"jatin/L298N_MOTOR_DRIVER"},
+  {ref:"U8", name:"ULN2003 stepper driver", cls:"act", mount:"standoff",
+   x:276, y:157, w:35, h:32, pins:"IN1\u20134 \u2192 26 27 28 29", d:[26,27,28,29], a:[],
+   src:"\u2014"},
+  {ref:"M3", name:"28BYJ-48 stepper", cls:"act", mount:"clamp",
+   x:317, y:159, w:35, h:28, pins:"driven by U8", d:[], a:[], src:"\u2014"},
+
+  /* --- DRIVE & ACTUATE : band B, servo + switched loads --- */
+  {ref:"U5", name:"PCA9685 16-ch servo driver", cls:"act", mount:"standoff",
+   x:124, y:204, w:62, h:26, pins:"I\u00B2C 0x40 \u00B7 50 Hz", d:[], a:[],
+   src:"jatin/Practical_I2c_comunication"},
+  {ref:"M5", name:"SG90 servo", cls:"act", mount:"standoff",
+   x:200, y:210, w:32, h:14, pins:"6 \u00B7 or U5 ch 0", d:[6], a:[],
+   src:"jatin/servo_motor"},
+  {ref:"K1", name:"Relay module 2-ch", cls:"act", mount:"standoff",
+   x:250, y:201, w:50, h:38, pins:"IN1 30 \u00B7 IN2 31", d:[30,31], a:[],
+   src:"\u2014"},
+  {ref:"P1", name:"Diaphragm pump 12 V", cls:"act", mount:"clamp",
+   x:316, y:203, w:60, h:35, pins:"12 V via K1 ch 1", d:[], a:[], src:"\u2014"}
+];
+
+var NOTES = [
+  "TADMAK 1.0 is the brain block: the 12 V inlet, the 5 V supply and the one controller. Everything else on the panel wires back to it at 5 V \u2014 no level shifting anywhere.",
+  "Pin numbers printed on each footprint are Mega digital pins. 0 and 1 stay free for Serial over USB.",
+  "Solid outline = module on M3 × 6 standoffs, drill ⌀3.2 at the centre-marked holes. Dashed window = cut through the panel. The letter in each corner gives the part’s function — see the key below.",
+  "I\u00B2C rail runs SDA 20 / SCL 21 across the panel: BH1750 0x23, SSD1306 0x3C, PCA9685 0x40 \u2014 no address collisions.",
+  "P1 runs on raw 12 V taken ahead of PS1 and switched by K1 \u2014 only the relay\u2019s control side touches the Mega. U6, U8 and the servos take 5 V from PS1, never the Mega\u2019s 5 V pin. Grounds commoned once, at TB1.",
+  "Pins 44\u201346 left free: the Servo library claims Timer5 and disables analogWrite there."
+];
+
+/* ============================================================
+   2. Drawing
+   ============================================================ */
+function esc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function n(v){ return Math.round(v*100)/100; }
+function fmt(v){ return (Math.round(v*10)/10).toString(); }
+
+var svgParts = [];
+function push(s){ svgParts.push(s); }
+
+function drawFrame(){
+  var m = SHEET.margin, W = SHEET.w, H = SHEET.h;
+  push('<defs><pattern id="hatch" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'+
+       '<line x1="0" y1="0" x2="0" y2="2" stroke="#000" stroke-width="0.35"/></pattern></defs>');
+  push('<rect class="sheet-bg" x="0" y="0" width="'+W+'" height="'+H+'"/>');
+  push('<rect class="cutline" x="0.4" y="0.4" width="'+(W-0.8)+'" height="'+(H-0.8)+'"/>');
+  push('<rect class="frame" x="'+m+'" y="'+m+'" width="'+(W-2*m)+'" height="'+(H-2*m)+'"/>');
+}
+
+function drawGrid(){
+  push('<g class="grid-layer">');
+  for(var x=20;x<SHEET.w-10;x+=10)
+    push('<line class="gridline" x1="'+x+'" y1="10" x2="'+x+'" y2="'+(SHEET.h-10)+'"/>');
+  for(var y=20;y<SHEET.h-10;y+=10)
+    push('<line class="gridline" x1="10" y1="'+y+'" x2="'+(SHEET.w-10)+'" y2="'+y+'"/>');
+  push('</g>');
+}
+
+function drawSheetTitle(){
+  push('<text class="sheet-title" x="12" y="24">TADMAK 1.0 \u00B7 ROBOTICS LEARNING KIT FRONT PANEL</text>');
+  push('<text class="sheet-sub" x="268" y="24">ONE MEGA 2560 · ONE INK · PINS SHOWN ON EACH PART</text>');
+  push('<line class="hair" x1="12" y1="27" x2="408" y2="27"/>');
+}
+
+function drawBlocks(){
+  BLOCKS.forEach(function(b){
+    if(b.bare) return;
+    var count = PARTS.filter(function(p){
+      return p.x >= b.x-1 && p.x < b.x+b.w && p.y >= b.y-1 && p.y < b.y+b.h;
+    }).length;
+    push('<rect class="block-rect" x="'+b.x+'" y="'+b.y+'" width="'+b.w+'" height="'+b.h+'"/>');
+    push('<line class="block-band" x1="'+b.x+'" y1="'+(b.y+8)+'" x2="'+(b.x+b.w)+'" y2="'+(b.y+8)+'"/>');
+    push('<text class="block-title" x="'+(b.x+2.5)+'" y="'+(b.y+5.6)+'">'+esc(b.t)+'</text>');
+    var tail = (b.sub ? b.sub + ' \u00B7 ' : '') + count + (count===1?' PART':' PARTS');
+    push('<text class="block-count" x="'+(b.x+b.w-2.5)+'" y="'+(b.y+5.4)+'" text-anchor="end">'+esc(tail)+'</text>');
+  });
+}
+
+/* --- pin bookkeeping --- */
+var USED_D = {}, USED_A = {}, OWNER = {};
+PARTS.forEach(function(p){
+  (p.d||[]).forEach(function(k){ USED_D[k]=1; OWNER["D"+k]=p.cls; });
+  (p.a||[]).forEach(function(k){ USED_A[k]=1; OWNER[k]=p.cls; });
+});
+var usedCount = Object.keys(USED_D).length + Object.keys(USED_A).length;
+
+/* --- Mega pin-budget strip, drawn in the gap under the board --- */
+function drawPinBudget(){
+  var x0 = 84, y0 = 99, cw = 2.0, ch = 4;
+  push('<text class="pb-title" x="'+x0+'" y="'+(y0+1.6)+'">MEGA 2560 PIN BUDGET — '+
+       usedCount+' USED</text>');
+
+  push('<text class="pb-hdr" x="'+x0+'" y="'+(y0+7)+'">D</text>');
+  var i, px, cls;
+  for(i=2;i<=53;i++){
+    px = x0 + 4 + (i-2)*cw;
+    cls = OWNER["D"+i];
+    push('<rect class="pb-cell '+(cls?'pb-used':'pb-free')+'" x="'+n(px)+'" y="'+(y0+3.6)+
+         '" width="'+n(cw-0.35)+'" height="'+ch+'"/>');
+  }
+  [2,10,20,30,40,53].forEach(function(t){
+    var tx = x0 + 4 + (t-2)*cw + (cw-0.35)/2;
+    push('<text class="pb-tick" x="'+n(tx)+'" y="'+(y0+10.4)+'">'+t+'</text>');
+  });
+
+  push('<text class="pb-hdr" x="'+x0+'" y="'+(y0+16.4)+'">A</text>');
+  for(i=0;i<=15;i++){
+    px = x0 + 4 + i*cw;
+    cls = OWNER["A"+i];
+    push('<rect class="pb-cell '+(cls?'pb-used':'pb-free')+'" x="'+n(px)+'" y="'+(y0+13)+
+         '" width="'+n(cw-0.35)+'" height="'+ch+'"/>');
+  }
+  [0,5,10,15].forEach(function(t){
+    var tx = x0 + 4 + t*cw + (cw-0.35)/2;
+    push('<text class="pb-tick" x="'+n(tx)+'" y="'+(y0+19.8)+'">A'+t+'</text>');
+  });
+  push('<text class="pb-key" x="'+(x0+4)+'" y="'+(y0+25)+'">'+
+       'solid = claimed · hollow = free · 0 / 1 reserved for Serial USB</text>');
+}
+
+/* --- special renderings --- */
+function megaInner(p){
+  /* simplified header geography so a beginner can orient the board */
+  var s = '';
+  s += '<line class="detail" x1="'+(p.x+2)+'" y1="'+(p.y+11)+'" x2="'+(p.x+p.w-2)+'" y2="'+(p.y+11)+'"/>';
+  s += '<line class="detail" x1="'+(p.x+2)+'" y1="'+(p.y+p.h-11)+'" x2="'+(p.x+p.w-2)+'" y2="'+(p.y+p.h-11)+'"/>';
+  s += '<line class="detail" x1="'+(p.x+p.w-30)+'" y1="'+(p.y+11)+'" x2="'+(p.x+p.w-30)+'" y2="'+(p.y+p.h-11)+'"/>';
+  s += '<text class="pb-hdr" x="'+(p.x+3)+'" y="'+(p.y+9)+'">DIGITAL 2–13 · SDA 20 / SCL 21 · SPI 50–52</text>';
+  s += '<text class="pb-hdr" x="'+(p.x+3)+'" y="'+(p.y+p.h-4.2)+'">POWER · ANALOGUE A0–A15</text>';
+  s += '<text class="pb-hdr" x="'+(p.x+p.w-28)+'" y="'+(p.y+p.h/2)+'">22–53</text>';
+  s += '<text class="pb-key" x="'+(p.x+p.w-28)+'" y="'+(p.y+p.h/2+3)+'">2×18 hdr</text>';
+  return s;
+}
+function railInner(p){
+  var s = '', i, names = ["SDA 20","SCL 21","5V","GND"], y0 = p.y+2.4, step = 1.8;
+  for(i=0;i<4;i++){
+    var yy = y0 + i*step;
+    s += '<line class="railline" x1="'+(p.x+30)+'" y1="'+n(yy)+'" x2="'+(p.x+p.w-34)+'" y2="'+n(yy)+'"/>';
+    s += '<text class="raillabel" x="'+(p.x+27)+'" y="'+n(yy+0.7)+'" text-anchor="end">'+names[i]+'</text>';
+  }
+  for(i=0;i<12;i++){
+    s += '<circle class="railtap" cx="'+n(p.x+44+i*26)+'" cy="'+n(y0+step)+'" r="1.1"/>';
+  }
+  s += '<text class="raillabel" x="'+(p.x+p.w-31)+'" y="'+n(y0+step+0.7)+'">0x23 · 0x3C · 0x40</text>';
+  return s;
+}
+function breadboardInner(p){
+  var s = '';
+  s += '<line class="detail" x1="'+(p.x+2)+'" y1="'+n(p.y+p.h/2)+'" x2="'+(p.x+p.w-2)+'" y2="'+n(p.y+p.h/2)+'"/>';
+  [0.25,0.75].forEach(function(f){
+    var yy = p.y + p.h*f;
+    s += '<line class="detail" x1="'+(p.x+2)+'" y1="'+n(yy)+'" x2="'+(p.x+p.w-2)+
+         '" y2="'+n(yy)+'" stroke-dasharray="1 1"/>';
+  });
+  return s;
+}
+
+function drawParts(){
+  PARTS.forEach(function(p){
+    var g = [];
+    g.push('<g class="comp" data-ref="'+esc(p.ref)+'" tabindex="0" role="button" '+
+           'aria-label="'+esc(p.ref+' — '+p.name+'. Mega pins: '+p.pins+'. '+
+                         fmt(p.w)+' by '+fmt(p.h)+' millimetres')+'">');
+    g.push('<rect class="fp" x="'+p.x+'" y="'+p.y+'" width="'+p.w+'" height="'+p.h+'" rx="0.6"/>');
+
+    if(p.render === "mega")            g.push(megaInner(p));
+    else if(p.render === "rail")       g.push(railInner(p));
+    else if(p.render === "breadboard") g.push(breadboardInner(p));
+
+    if(p.mount === "cutout"){
+      g.push('<rect class="cut" x="'+n(p.x+1.6)+'" y="'+n(p.y+1.6)+'" width="'+n(p.w-3.2)+
+             '" height="'+n(p.h-3.2)+'"/>');
+    } else if(p.mount === "standoff"){
+      var ins = Math.min(2.4, p.w/5, p.h/5);
+      [[p.x+ins,p.y+ins],[p.x+p.w-ins,p.y+ins],[p.x+ins,p.y+p.h-ins],[p.x+p.w-ins,p.y+p.h-ins]]
+        .forEach(function(c){
+          g.push('<circle class="hole" cx="'+n(c[0])+'" cy="'+n(c[1])+'" r="1.6"/>');
+          g.push('<line class="holemark" x1="'+n(c[0]-2.4)+'" y1="'+n(c[1])+'" x2="'+n(c[0]+2.4)+'" y2="'+n(c[1])+'"/>');
+          g.push('<line class="holemark" x1="'+n(c[0])+'" y1="'+n(c[1]-2.4)+'" x2="'+n(c[0])+'" y2="'+n(c[1]+2.4)+'"/>');
+        });
+    }
+
+    if(p.render !== "rail" && p.w >= 20 && p.h >= 11){
+      var tgx = p.x + p.w - 5.6, tgy = p.y + 0.9;
+      g.push('<rect class="tagbox" x="'+n(tgx)+'" y="'+n(tgy)+'" width="4.7" height="4.7"/>');
+      g.push('<text class="tagtext" x="'+n(tgx+2.35)+'" y="'+n(tgy+2.55)+'">'+CLASSES[p.cls].code+'</text>');
+    }
+
+    /* label stack: ref, name, Mega pins — as many lines as the footprint holds */
+    var maxChars = Math.floor((p.w-3)/1.02),
+        fitLines = Math.floor((p.h-2.2)/3.05);
+
+    if(p.render === "mega"){
+      g.push('<text class="ref" x="'+n(p.x+3)+'" y="'+n(p.y+16)+'" style="font-size:4.4px">U1</text>');
+      g.push('<text class="nm" x="'+n(p.x+3)+'" y="'+n(p.y+21)+'" style="font-size:3.2px">'+
+             'ARDUINO MEGA 2560</text>');
+      g.push('<text class="pins" x="'+n(p.x+3)+'" y="'+n(p.y+25.5)+'">'+esc(p.pins)+'</text>');
+    } else if(p.render === "rail"){
+      g.push('<text class="ref" x="'+n(p.x+2)+'" y="'+n(p.y+4)+'">TB2</text>');
+      g.push('<text class="pins" x="'+n(p.x+2)+'" y="'+n(p.y+8.4)+'">I²C RAIL</text>');
+    } else if(maxChars < 8 || fitLines < 1){
+      g.push('<text class="ref-c" x="'+n(p.x+p.w/2)+'" y="'+n(p.y+p.h/2)+'">'+esc(p.ref)+'</text>');
+    } else {
+      var lines = [
+        {cls:"ref",  t:p.ref},
+        {cls:"nm",   t:p.name},
+        {cls:"pins", t:p.pins}
+      ].slice(0, Math.min(fitLines, 3));
+      lines.forEach(function(l,i){
+        var t = l.t.length > maxChars ? l.t.slice(0, Math.max(3, maxChars-1))+"…" : l.t;
+        g.push('<text class="'+l.cls+'" x="'+n(p.x+2)+'" y="'+n(p.y+4.4+i*3.05)+'">'+esc(t)+'</text>');
+      });
+    }
+
+    if(p.w >= 34 && p.render !== "rail" && p.render !== "mega"){
+      g.push('<text class="dim" x="'+n(p.x+p.w-1.5)+'" y="'+n(p.y+p.h-1.6)+'">'+
+             fmt(p.w)+'×'+fmt(p.h)+'</text>');
+    }
+    g.push('</g>');
+    push(g.join(""));
+  });
+}
+
+function drawLegend(){
+  var y = 277, x = 12;
+
+  push('<rect x="'+x+'" y="'+y+'" width="8" height="5" rx="0.4" fill="none" stroke="#000" stroke-width="0.4"/>');
+  push('<circle class="hole" cx="'+(x+2)+'" cy="'+(y+1.8)+'" r="0.8" stroke="#000"/>');
+  push('<circle class="hole" cx="'+(x+6)+'" cy="'+(y+1.8)+'" r="0.8" stroke="#000"/>');
+  push('<text class="pb-key" x="'+(x+10)+'" y="'+(y+4)+'">M3 standoff, drill \u23003.2</text>');
+
+  push('<rect x="'+(x+48)+'" y="'+y+'" width="8" height="5" rx="0.4" fill="none" stroke="#000" stroke-width="0.4"/>');
+  push('<rect class="cut" x="'+(x+49.3)+'" y="'+(y+1.3)+'" width="5.4" height="2.4" '+
+       'stroke="#000"/>');
+  push('<text class="pb-key" x="'+(x+58)+'" y="'+(y+4)+'">cut through panel</text>');
+
+  Object.keys(CLASSES).forEach(function(k,i){
+    var sx = x + 96 + i*28;
+    push('<rect class="tagbox" x="'+sx+'" y="'+(y+0.3)+'" width="4.7" height="4.7"/>');
+    push('<text class="tagtext" x="'+(sx+2.35)+'" y="'+(y+2.95)+'">'+CLASSES[k].code+'</text>');
+    push('<text class="pb-key" x="'+(sx+7)+'" y="'+(y+4)+'">'+esc(CLASSES[k].label)+'</text>');
+  });
+}
+
+function drawTitleBlock(){
+  var x=266, y=244, w=142, h=40;
+  push('<rect class="tb-rect" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'"/>');
+  push('<line class="tb-div" x1="'+x+'" y1="'+(y+11)+'" x2="'+(x+w)+'" y2="'+(y+11)+'"/>');
+  push('<line class="tb-div" x1="'+x+'" y1="'+(y+22)+'" x2="'+(x+w)+'" y2="'+(y+22)+'"/>');
+  push('<line class="tb-div" x1="'+x+'" y1="'+(y+31)+'" x2="'+(x+w)+'" y2="'+(y+31)+'"/>');
+  push('<line class="tb-div" x1="'+(x+88)+'" y1="'+(y+11)+'" x2="'+(x+88)+'" y2="'+(y+h)+'"/>');
+  push('<line class="tb-div" x1="'+(x+44)+'" y1="'+(y+22)+'" x2="'+(x+44)+'" y2="'+(y+31)+'"/>');
+  push('<text class="tb-big" x="'+(x+2.5)+'" y="'+(y+7.6)+'">TADMAK 1.0 \u2014 FRONT PANEL SKETCH</text>');
+  function cell(cx, cy, k, v){
+    push('<text class="tb-key" x="'+cx+'" y="'+cy+'">'+esc(k)+'</text>');
+    push('<text class="tb-val" x="'+cx+'" y="'+(cy+4.6)+'">'+esc(v)+'</text>');
+  }
+  cell(x+2.5,  y+15,   "DRAWING No",  "DIB-KIT-2026-FP-01");
+  cell(x+90.5, y+15,   "REV / DATE",  "D-M · 2026-09-22");
+  cell(x+2.5,  y+26,   "CONTROLLER",  "MEGA 2560 (sole)");
+  cell(x+46.5, y+26,   "SCALE",       "1 : 1");
+  cell(x+90.5, y+26,   "SHEET",       "A3 · mm · MONO");
+  cell(x+2.5,  y+34.5, "DRAWN",       "Jatin \u00B7 M. Arora");
+  cell(x+90.5, y+34.5, "REPO",        "2026/layout");
+}
+
+function drawNotes(){
+  var x=12, y=244;
+  push('<text class="note-t" x="'+x+'" y="'+(y+4)+'">NOTES</text>');
+  push('<line class="hair" x1="'+x+'" y1="'+(y+5.6)+'" x2="262" y2="'+(y+5.6)+'"/>');
+  NOTES.forEach(function(t,i){
+    push('<text class="note" x="'+x+'" y="'+n(y+10+i*3.7)+'">'+(i+1)+'.  '+esc(t)+'</text>');
+  });
+}
+
+function drawTileGuides(){
+  push('<g class="tile-layer">');
+  push('<line class="tileline" x1="210" y1="4" x2="210" y2="293"/>');
+  push('<text class="tiletext" x="105" y="293.5">A4 SHEET 1 OF 2</text>');
+  push('<text class="tiletext" x="315" y="293.5">A4 SHEET 2 OF 2</text>');
+  [6, 148.5, 291].forEach(function(cy){
+    push('<circle class="regmark" cx="210" cy="'+cy+'" r="2.2"/>');
+    push('<line class="regmark" x1="206" y1="'+cy+'" x2="214" y2="'+cy+'"/>');
+    push('<line class="regmark" x1="210" y1="'+(cy-4)+'" x2="210" y2="'+(cy+4)+'"/>');
+  });
+  push('</g>');
+}
+
+drawFrame();
+drawGrid();
+drawSheetTitle();
+drawBlocks();
+drawPinBudget();
+drawParts();
+drawLegend();
+drawTitleBlock();
+drawNotes();
+drawTileGuides();
+
+var MARKUP = svgParts.join("\n");
+document.getElementById("a3view").innerHTML = MARKUP;
+Array.prototype.forEach.call(document.querySelectorAll("#a4view svg"), function(s){
+  s.innerHTML = MARKUP;
+});
+
+/* ============================================================
+   3. Pin schedule table
+   ============================================================ */
+var MOUNTS = {standoff:"M3 standoff", cutout:"Panel cut-out", clamp:"Bracket / clamp"};
+var body = document.getElementById("bomBody");
+body.innerHTML = PARTS.map(function(p){
+  var c = CLASSES[p.cls];
+  return '<tr data-ref="'+esc(p.ref)+'" data-cls="'+p.cls+'" tabindex="0">'+
+    '<td class="ref-cell">'+esc(p.ref)+'</td>'+
+    '<td>'+esc(p.name)+'</td>'+
+    '<td><span class="badge"><b>'+c.code+'</b> '+esc(c.label)+'</span></td>'+
+    '<td class="pin-cell">'+esc(p.pins)+'</td>'+
+    '<td class="mono">'+fmt(p.w)+' × '+fmt(p.h)+'</td>'+
+    '<td class="mono">'+MOUNTS[p.mount]+'</td>'+
+    '<td class="src">'+esc(p.src)+'</td>'+
+  '</tr>';
+}).join("");
+
+var chips = document.getElementById("chips"), active = {};
+Object.keys(CLASSES).forEach(function(k){ active[k] = true; });
+chips.innerHTML = Object.keys(CLASSES).map(function(k){
+  var count = PARTS.filter(function(p){ return p.cls === k; }).length;
+  return '<button type="button" class="chip" data-cls="'+k+'" aria-pressed="true">'+
+    '<span class="code">'+CLASSES[k].code+'</span>'+
+    CLASSES[k].label+' <span style="color:var(--ink-3)">'+count+'</span></button>';
+}).join("");
+
+function applyFilter(){
+  var anyOff = Object.keys(active).some(function(k){ return !active[k]; });
+  PARTS.forEach(function(p){
+    var on = active[p.cls];
+    var row = body.querySelector('tr[data-ref="'+p.ref+'"]');
+    if(row) row.hidden = !on;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.comp[data-ref="'+p.ref+'"]'), function(g){
+        g.classList.toggle("dim-out", anyOff && !on);
+      });
+  });
+}
+chips.addEventListener("click", function(e){
+  var b = e.target.closest(".chip"); if(!b) return;
+  var k = b.dataset.cls;
+  active[k] = !active[k];
+  b.setAttribute("aria-pressed", String(active[k]));
+  applyFilter();
+});
+
+/* ============================================================
+   4. Selection sync: drawing <-> schedule
+   ============================================================ */
+var selected = null;
+function select(ref, scroll){
+  selected = (selected === ref) ? null : ref;
+  Array.prototype.forEach.call(document.querySelectorAll(".comp"), function(g){
+    g.classList.toggle("sel", g.dataset.ref === selected);
+  });
+  Array.prototype.forEach.call(body.querySelectorAll("tr"), function(r){
+    r.classList.toggle("sel", r.dataset.ref === selected);
+  });
+  if(selected && scroll){
+    var row = body.querySelector('tr[data-ref="'+selected+'"]');
+    if(row) row.scrollIntoView({block:"center", behavior:"smooth"});
+  }
+}
+var viewport = document.getElementById("viewport");
+viewport.addEventListener("click", function(e){
+  var g = e.target.closest(".comp"); if(g) select(g.dataset.ref, true);
+});
+viewport.addEventListener("keydown", function(e){
+  if(e.key !== "Enter" && e.key !== " ") return;
+  var g = e.target.closest(".comp"); if(!g) return;
+  e.preventDefault(); select(g.dataset.ref, true);
+});
+body.addEventListener("click", function(e){
+  var r = e.target.closest("tr"); if(r) select(r.dataset.ref, false);
+});
+body.addEventListener("keydown", function(e){
+  if(e.key !== "Enter" && e.key !== " ") return;
+  var r = e.target.closest("tr"); if(!r) return;
+  e.preventDefault(); select(r.dataset.ref, false);
+});
+
+/* ============================================================
+   5. Controls
+   ============================================================ */
+document.getElementById("zoomSeg").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  Array.prototype.forEach.call(this.querySelectorAll("button"), function(x){
+    x.setAttribute("aria-pressed", String(x === b));
+  });
+  viewport.classList.remove("zoom-fit","zoom-100","zoom-150");
+  viewport.classList.add("zoom-" + b.dataset.zoom);
+});
+
+var pageRule = document.getElementById("pageRule");
+document.getElementById("modeSeg").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  Array.prototype.forEach.call(this.querySelectorAll("button"), function(x){
+    x.setAttribute("aria-pressed", String(x === b));
+  });
+  var a4 = b.dataset.mode === "a4";
+  document.body.classList.toggle("mode-a4", a4);
+  document.body.classList.toggle("mode-a3", !a4);
+  document.body.classList.toggle("no-tile", !a4);
+  pageRule.textContent = a4 ? "@page{size:A4 portrait;margin:0}"
+                            : "@page{size:A3 landscape;margin:0}";
+});
+document.body.classList.add("no-tile");
+document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
+
+[["lyPins","no-pins"],["lyGrid","no-grid"],["lyHoles","no-holes"],["lyDims","no-dims"]]
+  .forEach(function(pair){
+    var el = document.getElementById(pair[0]);
+    el.addEventListener("change", function(){
+      document.body.classList.toggle(pair[1], !el.checked);
+    });
+  });
+
+/* ============================================================
+   6. Figures, computed from the drawing itself
+   ============================================================ */
+var totalMM2 = PARTS.reduce(function(s,p){ return s + p.w*p.h; }, 0);
+/* usable field = sheet less the 10 mm frame margin, which is what parts compete for */
+var A4 = 210*297, A3 = 420*297;
+var fieldA4 = (210-20)*(297-20), fieldA3 = (420-20)*(297-20);
+var fillA4 = totalMM2/fieldA4*100, fillA3 = totalMM2/fieldA3*100;
+
+document.getElementById("reg-parts").textContent = PARTS.length;
+document.getElementById("reg-pins").textContent  = usedCount + " / 70";
+document.getElementById("reg-fill").textContent  = fillA3.toFixed(0) + "%";
+document.getElementById("pinsUsedInline").textContent = usedCount;
+
+var srcs = {};
+PARTS.forEach(function(p){
+  if(p.src === "\u2014") return;
+  p.src.split("\u00B7").forEach(function(s){ srcs[s.trim()] = 1; });
+});
+document.getElementById("srcCount").textContent = Object.keys(srcs).length;
+
+document.getElementById("areaKv").innerHTML =
+  '<dt>Parts</dt><dd>'+PARTS.length+'</dd>'+
+  '<dt>Footprint area</dt><dd>'+(totalMM2/100).toFixed(0)+' cm\u00B2</dd>'+
+  '<dt>A4 usable field</dt><dd>'+(fieldA4/100).toFixed(0)+' cm\u00B2 \u2192 '+fillA4.toFixed(0)+'% fill</dd>'+
+  '<dt>A3 usable field</dt><dd>'+(fieldA3/100).toFixed(0)+' cm\u00B2 \u2192 '+fillA3.toFixed(0)+'% fill</dd>';
+
+document.getElementById("verdict").innerHTML =
+  '<strong>A3, comfortably.</strong> The panel carries '+PARTS.length+' items, and the honest '+
+  'comparison is against the usable field inside the 10 mm frame, not the raw sheet. A4 lands at '+fillA4.toFixed(0)+
+  '% \u2014 past the point where label bands, finger room at the headers and on-panel jumper routing '+
+  'all still fit. A3 sits at '+fillA3.toFixed(0)+
+  '%, which leaves the label bands, the 4 mm routing channels and finger room at every header. '+
+  'A4 <em>portrait</em> fails outright anyway \u2014 TADMAK 1.0 alone is 186 mm wide and would not '+
+  'clear a 210 mm sheet once the frame is drawn.';
+
+})();
+</script>
+</body>
+</html>
