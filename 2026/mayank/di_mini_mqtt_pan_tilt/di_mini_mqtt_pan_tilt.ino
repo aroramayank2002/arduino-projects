@@ -17,8 +17,8 @@
  * servos by STEP degrees (2 by default here - independent of 1.ino's own
  * step, and of the software Pan/Tilt device's, since this is real hardware
  * tuned to its own servos):
- *   LEFT  -> pan  -STEP
- *   RIGHT -> pan  +STEP
+ *   LEFT  -> pan  +STEP
+ *   RIGHT -> pan  -STEP
  *   UP    -> tilt -STEP
  *   DOWN  -> tilt +STEP
  *   STOP  -> ignored (nothing moved, so nothing to publish)
@@ -87,7 +87,7 @@ const int ANGLE_MAX = 180;
 // Tilt-specific upper bound - DOWN drives tiltAngle toward ANGLE_MAX, but this hardware's
 // tilt mount hits its bottom mechanical stop well before 180, so tilt is clamped to this
 // instead of ANGLE_MAX to avoid straining the servo against the stop.
-const int TILT_MAX  = 94;
+const int TILT_MAX  = 175;
 
 Servo panServo;
 Servo tiltServo;
@@ -267,9 +267,9 @@ void processPendingDirection() {
   Serial.println(direction);
 
   if (direction == "LEFT") {
-    stepPan(-STEP);
-  } else if (direction == "RIGHT") {
     stepPan(STEP);
+  } else if (direction == "RIGHT") {
+    stepPan(-STEP);
   } else if (direction == "UP") {
     stepTilt(-STEP);
   } else if (direction == "DOWN") {
@@ -368,8 +368,8 @@ void loop() {
   processPendingDirection();
   maybeSavePosition();
 
-  /* ===== Serial control - same keys as 1.ino, tilt direction flipped to match the
-   * joystick's UP/DOWN mapping above ===== */
+  /* ===== Serial control - same keys as 1.ino, pan and tilt directions flipped to
+   * match the joystick's LEFT/RIGHT and UP/DOWN mapping above ===== */
   if (Serial.available()) {
     char cmd = Serial.read();
     Serial.print("[Serial<-] Received '");
@@ -377,8 +377,8 @@ void loop() {
     Serial.println("'");
 
     switch (cmd) {
-      case 'q': stepPan(-STEP);  break;
-      case 'a': stepPan(STEP);   break;
+      case 'q': stepPan(STEP);   break;
+      case 'a': stepPan(-STEP);  break;
       case 'w': stepTilt(-STEP); break;
       case 's': stepTilt(STEP);  break;
       default:
