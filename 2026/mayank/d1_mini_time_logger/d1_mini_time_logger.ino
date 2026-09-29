@@ -1,3 +1,4 @@
+// board: LOLIN(WEMOS) D1 R2 & mini
 // logs ntp time every minute
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>

@@ -1,3 +1,4 @@
+// board: LOLIN(WEMOS) D1 R2 & mini
 #define BUTTON_PIN D6
 #define LED_PIN LED_BUILTIN
 

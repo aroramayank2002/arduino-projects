@@ -1,3 +1,4 @@
+// board: LOLIN(WEMOS) D1 R2 & mini
 #define ENC_PSH D1
 #define ENC_A   D8
 #define ENC_B   D7

@@ -1,3 +1,4 @@
+// board: LOLIN(WEMOS) D1 R2 & mini
 #define LED_PIN LED_BUILTIN
 
 void setup() {
