@@ -1,6 +1,6 @@
 #include <Wire.h>
 #include <BH1750.h>
-// create an object
+// create an object named lightMeter
 BH1750 lightMeter;
 
 
