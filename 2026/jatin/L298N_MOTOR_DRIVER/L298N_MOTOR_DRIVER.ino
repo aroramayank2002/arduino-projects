@@ -1,9 +1,9 @@
 void setup() {
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
-  pinMode(7, OUTPUT);
+  pinMode(5, OUTPUT);
   digitalWrite(4, HIGH);
-  digitalWrite(7, LOW);
+  digitalWrite(5, LOW);
 }
 
 void loop() {
@@ -28,17 +28,17 @@ void loop() {
   delay(5000);*/
 
   // Motor speed slow to high and high to slow (as a dimmer)
-  /*for(int x = 70; x<=255; x++){  
+  for(int x = 70; x<=255; x++){  
   analogWrite(3, x);
   delay(50);
  }
  for(int y = 255; y>=70; y--){  
   analogWrite(3, y);
   delay(50);
- }*/
+ }
 
   // motor speed controll with potentiometer
-  int x = map(analogRead(A0), 0, 1023, 70, 255);
+ /* int x = map(analogRead(A0), 0, 1023, 70, 255);
   analogWrite(3, x);
-  delay(10);
+  delay(10);*/
 }
