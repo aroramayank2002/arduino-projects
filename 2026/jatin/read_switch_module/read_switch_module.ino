@@ -1,14 +1,14 @@
 void setup() {
   pinMode(12, INPUT);
-  pinMode(13, OUTPUT);
+  pinMode(2, OUTPUT);
 }
 
 void loop() {
   if(digitalRead(12)<1){
-    digitalWrite(13, HIGH);
+    digitalWrite(2, HIGH);
   }
   else{
-    digitalWrite(13, LOW);
+    digitalWrite(2, LOW);
   }
 
 }
