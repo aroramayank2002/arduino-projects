@@ -1,10 +1,10 @@
 #include <max6675.h>
 
 // set pin configration
-int thermoSO = 2;
-int thermoCS = 5;
-int thermoCLK = 6;
-// make object of max6675
+int thermoSO = 6;
+int thermoCS = 7;
+int thermoCLK = 8;
+// make object of max6675 named thermocouple
 MAX6675 thermocouple(thermoCLK, thermoCS, thermoSO);
 
 void setup() {
