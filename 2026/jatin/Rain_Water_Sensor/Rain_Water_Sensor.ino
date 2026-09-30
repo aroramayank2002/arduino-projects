@@ -1,4 +1,4 @@
-#define alarm 13
+#define alarm 23
 
 void setup() {
   Serial.begin(9600);
@@ -6,7 +6,7 @@ void setup() {
 }
 
 void loop() {
-  int moisture = analogRead(A0);
+  int moisture = analogRead(A2);
   if (moisture > 100) {
     digitalWrite(alarm, HIGH);
     Serial.println("Raining !");
