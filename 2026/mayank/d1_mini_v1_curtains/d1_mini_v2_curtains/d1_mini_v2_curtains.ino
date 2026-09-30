@@ -1,3 +1,4 @@
+// board: LOLIN(WEMOS) D1 R2 & mini
 // working: hardcoded wifi connection, received button D5 and from mqtt button at topic esp/curtain/toggle (1 or 0) to turn two servos
 // in mirror fashion on D8 and D7
 #include <ESP8266WiFi.h>

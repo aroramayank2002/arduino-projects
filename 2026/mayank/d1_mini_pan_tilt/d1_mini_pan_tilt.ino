@@ -1,3 +1,4 @@
+// board: LOLIN(WEMOS) D1 R2 & mini
 #include <Servo.h>
 
 Servo panServo;

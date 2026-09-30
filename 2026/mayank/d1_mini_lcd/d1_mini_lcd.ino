@@ -1,3 +1,4 @@
+// board: LOLIN(WEMOS) D1 R2 & mini
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
