@@ -1,6 +1,6 @@
 #include <DHT.h> // Requires the "DHT sensor library" by Adafruit
 
-#define DHTPIN 13     // use degital pin no 13 of Arduino Mega 
+#define DHTPIN 26     // use degital pin no 26 of Arduino Mega 
 #define DHTTYPE DHT11 // Hum DHT11 sensor ka use kar rahe hain
 
 DHT dht(DHTPIN, DHTTYPE);
