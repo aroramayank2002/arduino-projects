@@ -72,12 +72,12 @@ void printMenu() {
   Serial.println();
   Serial.println("Enter 1-6 to select servo");
   Serial.println();
-  Serial.println("1 = CH0"); // 10-170
-  Serial.println("2 = CH1"); // 30-70, default 90
-  Serial.println("3 = CH2"); // 10-170, default 94
-  Serial.println("4 = CH3"); // 10-170, default 62
-  Serial.println("5 = CH4"); // 20-170, default 74 
-  Serial.println("6 = CH5"); // 80-138, default 110
+  Serial.println("1 = CH0"); //base 10-170
+  Serial.println("2 = CH1"); //boom 30-170, default 90
+  Serial.println("3 = CH2"); //arm 10-170, default 94
+  Serial.println("4 = CH3"); //wrist pitch 10-170, default 62
+  Serial.println("5 = CH4"); //wrist roll 20-170, default 74
+  Serial.println("6 = CH5"); //grip 80-138, default 110
   Serial.println();
   Serial.println("q = -2 degrees");
   Serial.println("a = +2 degrees");
