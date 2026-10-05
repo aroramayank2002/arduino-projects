@@ -27,8 +27,9 @@ home-assistant app (SERVO_ARM "first-servo-arm", id 33)
 3. In the app, connect `first-servo-arm` and press a joint button: the arm follows.
 4. In Home Assistant: Settings > Devices > "D1 Mini Robot Arm" (entity `sensor.d1_mini_robot_arm`,
    plus a **Home** button `button.d1_mini_robot_arm_home`).
-5. Home / Reset on http://localhost:4025/robotic-arm.html (or the HA Home button) publishes
-   `PRESS` to `homeassistant/button/d1_mini_robot_arm/home`; every joint ramps to its servo default.
+5. Home / Reset on http://localhost:4025/robotic-arm.html?device-name=D1%20Mini%20Robot%20Arm
+   (or the HA Home button) publishes `PRESS` to `homeassistant/button/d1_mini_robot_arm/home`;
+   every joint ramps to its servo default. Without `?device-name=` the page only animates.
 
 Before moving the arm through MQTT for the first time, check the `scale` sign for each joint
 in `JOINTS` (use -1 if that joint moves the wrong way).

@@ -39,8 +39,11 @@
  * (homeassistant/button/d1_mini_robot_arm_home/config) and subscribes to its command topic,
  *   homeassistant/button/d1_mini_robot_arm/home   payload: PRESS
  * On PRESS every joint ramps back to its servoDefault. Pressing it in HA's UI and pressing
- * Home / Reset on the app's robotic-arm.html page (POST /robotic-arm/home, topic set by
- * robotic-arm.home-command-topic) send exactly the same message.
+ * Home / Reset on the app's page linked to this arm by name,
+ *   http://localhost:4025/robotic-arm.html?device-name=D1 Mini Robot Arm
+ * (POST /robotic-arm/home?device-name=..., topic template robotic-arm.home-command-topic)
+ * send exactly the same message. The app slugifies the name into DEVICE_ID below
+ * ("D1 Mini Robot Arm" -> d1_mini_robot_arm), so keep DEVICE_ID = DEVICE_NAME slugified.
  *
  * ===== Fill in before flashing =====
  *   - WIFI_SSID / WIFI_PASSWORD if this D1 Mini is on a different network.
@@ -50,6 +53,8 @@
  *     sensor.servo_arm_33 -> homeassistant/sensor/servo_arm_33/state. Use the app's own
  *     entity_id column, not Home Assistant's slugified one.
  *   - JOINTS below - scale sign per joint, after watching each joint move once.
+ *   - For a second arm: a new DEVICE_NAME, DEVICE_ID (its slug), UNIQUE_ID and
+ *     MQTT_CLIENT_ID - every topic below is built from DEVICE_ID.
  *
  * Serial (115200) is kept for testing/calibration, same keys as the serial sketch:
  *   1-6 select joint (CH0-CH5), q = -2, a = +2 (servo degrees), h = home, p = print
@@ -78,18 +83,21 @@ const char* SOURCE_DEVICE_NAME   = "first-servo-arm";
  * UNIQUE_ID must stay the same forever once flashed - HA's device/entity registry keys
  * history and customizations off it (same rule as the app's discoveryId). */
 const char* DEVICE_NAME       = "D1 Mini Robot Arm";
+// DEVICE_NAME slugified (lowercase, non-alphanumerics -> "_") - what ?device-name= resolves to.
+#define DEVICE_ID "d1_mini_robot_arm"
 const char* UNIQUE_ID         = "d1-mini-robot-arm-01";
 const char* FIRMWARE_VERSION  = "1.0";
 const char* HARDWARE          = "d1-mini + pca9685";
-const char* TOPIC_CONFIG       = "homeassistant/sensor/d1_mini_robot_arm/config";
-const char* TOPIC_STATE        = "homeassistant/sensor/d1_mini_robot_arm/state";
-const char* TOPIC_ATTRIBUTES   = "homeassistant/sensor/d1_mini_robot_arm/attributes";
-const char* TOPIC_AVAILABILITY = "homeassistant/sensor/d1_mini_robot_arm/availability";
+const char* TOPIC_CONFIG       = "homeassistant/sensor/" DEVICE_ID "/config";
+const char* TOPIC_STATE        = "homeassistant/sensor/" DEVICE_ID "/state";
+const char* TOPIC_ATTRIBUTES   = "homeassistant/sensor/" DEVICE_ID "/attributes";
+const char* TOPIC_AVAILABILITY = "homeassistant/sensor/" DEVICE_ID "/availability";
 
-// Home button entity - TOPIC_HOME_COMMAND must match the app's robotic-arm.home-command-topic.
+// Home button entity - TOPIC_HOME_COMMAND must match the app's robotic-arm.home-command-topic
+// (homeassistant/button/{device}/home) with {device} = DEVICE_ID.
 const char* HOME_UNIQUE_ID      = "d1-mini-robot-arm-01-home";
-const char* TOPIC_HOME_CONFIG   = "homeassistant/button/d1_mini_robot_arm_home/config";
-const char* TOPIC_HOME_COMMAND  = "homeassistant/button/d1_mini_robot_arm/home";
+const char* TOPIC_HOME_CONFIG   = "homeassistant/button/" DEVICE_ID "_home/config";
+const char* TOPIC_HOME_COMMAND  = "homeassistant/button/" DEVICE_ID "/home";
 const char* HOME_PAYLOAD_PRESS  = "PRESS";
 
 /* ===== PCA9685 (same as d1_mini_pca8965_serial_control) ===== */
