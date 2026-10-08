@@ -33,7 +33,8 @@
  * "offline" via MQTT last will when it drops off), and after each move its *actual* reached
  * position in the same JSON shape the app publishes, so the servo-arm dashboard template
  * works on it unchanged. Attributes carry category=hardware (picked up by the "Discovered
- * Devices" dashboard), the source device, and the raw servo angles.
+ * Devices" dashboard), the source device, the raw servo angles, and each joint's real
+ * min/max in logical angles ("limits") for robotic-arm.html to show and respect.
  *
  * Home event: it also registers a Home Assistant "Home" BUTTON entity on the same device
  * (homeassistant/button/d1_mini_robot_arm_home/config) and subscribes to its command topic,
@@ -44,6 +45,13 @@
  * (POST /robotic-arm/home?device-name=..., topic template robotic-arm.home-command-topic)
  * send exactly the same message. The app slugifies the name into DEVICE_ID below
  * ("D1 Mini Robot Arm" -> d1_mini_robot_arm), so keep DEVICE_ID = DEVICE_NAME slugified.
+ *
+ * Position command: that page's joint buttons drive this arm directly too - every press/hold
+ * publishes all 6 logical angles as one JSON message (not retained) to
+ *   homeassistant/sensor/d1_mini_robot_arm/set   {"base":-23,"boom":0,"arm":90,...}
+ * (POST /robotic-arm/position?device-name=..., topic template robotic-arm.command-topic),
+ * the same shape as servo_arm_33's state, so it goes through the same handler. Whichever of
+ * the two topics sent the latest message wins.
  *
  * ===== Fill in before flashing =====
  *   - WIFI_SSID / WIFI_PASSWORD if this D1 Mini is on a different network.
@@ -100,6 +108,10 @@ const char* TOPIC_HOME_CONFIG   = "homeassistant/button/" DEVICE_ID "_home/confi
 const char* TOPIC_HOME_COMMAND  = "homeassistant/button/" DEVICE_ID "/home";
 const char* HOME_PAYLOAD_PRESS  = "PRESS";
 
+// Position command - must match the app's robotic-arm.command-topic
+// (homeassistant/sensor/{device}/set) with {device} = DEVICE_ID.
+const char* TOPIC_COMMAND       = "homeassistant/sensor/" DEVICE_ID "/set";
+
 /* ===== PCA9685 (same as d1_mini_pca8965_serial_control) ===== */
 #define SDA_PIN D2
 #define SCL_PIN D1
@@ -155,7 +167,7 @@ bool wasMoving = false;
 
 /* ===== State publish throttle - while moving, at most every STATE_PUBLISH_MS; plus once
  * when every joint has settled, so HA always ends on the real resting position. ===== */
-const int STATE_PUBLISH_MS = 500;
+const int STATE_PUBLISH_MS = 200; // the app's robotic-arm.html animates from these
 unsigned long lastStatePublishMillis = 0;
 
 /* ===== Last-stable-position persistence (same idea as the pan/tilt sketch) =====
@@ -342,7 +354,18 @@ void publishState() {
   for (int i = 0; i < NUM_JOINTS; i++) {
     servo[JOINTS[i].key] = currentAngle[i];
   }
-  char attrPayload[384];
+  // This arm's real per-joint range in the app's logical angles (servoMin/servoMax mapped
+  // back, rounded inward) - robotic-arm.html shows it and stops its buttons there, since the
+  // hardware clamp may be tighter than the app's configured range (e.g. boom: -60, not -70).
+  JsonObject limits = attrs["limits"].to<JsonObject>();
+  for (int i = 0; i < NUM_JOINTS; i++) {
+    float a = servoToLogical(i, JOINTS[i].servoMin);
+    float b = servoToLogical(i, JOINTS[i].servoMax);
+    JsonObject range = limits[JOINTS[i].key].to<JsonObject>();
+    range["min"] = (int) ceilf(min(a, b));
+    range["max"] = (int) floorf(max(a, b));
+  }
+  char attrPayload[768];
   serializeJson(attrs, attrPayload, sizeof(attrPayload));
   mqtt.publish(TOPIC_ATTRIBUTES, attrPayload, true);
 
@@ -350,7 +373,7 @@ void publishState() {
   Serial.println(payload);
 }
 
-/* ===== MQTT: joint state arriving from the app =====
+/* ===== MQTT: joint state arriving from the app (servo_arm_33 state or our /set command) =====
  * Same split as the pan/tilt sketch: the callback only records the newest payload, and
  * loop() acts on it - so older messages queued while busy are superseded, not replayed. */
 bool hasPendingState = false;
@@ -422,6 +445,10 @@ void connectWiFi() {
   Serial.println("\"");
 
   WiFi.mode(WIFI_STA);
+  // ESP8266 defaults to modem sleep: the radio dozes between AP beacons, so a command can
+  // sit at the router for up to ~1s+ (measured: ping 7ms..3.6s, MQTT set->move 16ms..1.3s).
+  // The arm is mains powered and must react to a held button now, so keep the radio awake.
+  WiFi.setSleepMode(WIFI_NONE_SLEEP);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   int attempt = 0;
   while (WiFi.status() != WL_CONNECTED) {
@@ -467,6 +494,9 @@ void maintainMqtt() {
     mqtt.subscribe(TOPIC_HOME_COMMAND);
     Serial.print("[MQTT] Subscribed to ");
     Serial.println(TOPIC_HOME_COMMAND);
+    mqtt.subscribe(TOPIC_COMMAND);
+    Serial.print("[MQTT] Subscribed to ");
+    Serial.println(TOPIC_COMMAND);
   } else {
     Serial.print("failed, rc=");
     Serial.print(mqtt.state());
