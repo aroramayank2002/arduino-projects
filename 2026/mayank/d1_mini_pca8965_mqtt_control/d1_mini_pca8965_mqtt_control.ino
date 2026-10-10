@@ -7,8 +7,8 @@
  * Combines:
  *   - d1_mini_pca8965_serial_control - same PCA9685 wiring/pulse range, and the per-joint
  *     channel + safe min/max + default servo angles found with it (see JOINTS below).
- *   - di_mini_mqtt_pan_tilt - same WiFi/MQTT pattern, latest-message-wins handling,
- *     smooth motion and EEPROM "last stable position" persistence.
+ *   - di_mini_mqtt_pan_tilt - same WiFi/MQTT pattern, latest-message-wins handling and
+ *     smooth motion (but no EEPROM position persistence - the arm boots at its defaults).
  *
  * Architecture (docs/md/robot-arm-hardware.md): the app is the brain, the arm is a dumb
  * bridge. The home-assistant app's SERVO_ARM device ("first-servo-arm", sensor id 33)
@@ -53,6 +53,14 @@
  * the same shape as servo_arm_33's state, so it goes through the same handler. Whichever of
  * the two topics sent the latest message wins.
  *
+ * Speed: the command may also carry "step" (1, 2 or 4) - degrees each joint moves per
+ * SMOOTH_STEP_MS tick, i.e. the ramp speed (1 ~= 125 deg/s, 2 ~= 250, 4 ~= 500). It sticks
+ * until the next message that names it (servo_arm_33's state and the Home button don't, so they
+ * use the last one). Every state publish reports it back as "step" plus "speed" in deg/s.
+ * A hobby servo has no speed input - it always rushes to its pulse width at full speed - so
+ * speed here only means how fast we move the target; above roughly 500 deg/s (SG90 no-load
+ * ~600 deg/s) the servo itself becomes the limit and "speed" overstates what it really does.
+ *
  * ===== Fill in before flashing =====
  *   - WIFI_SSID / WIFI_PASSWORD if this D1 Mini is on a different network.
  *   - MQTT_TOPIC_ARM_STATE if the app's servo arm sensor id isn't 33. Confirm with:
@@ -72,7 +80,6 @@
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
-#include <EEPROM.h>
 
 /* ===== WIFI SETTINGS (same network as di_mini_mqtt_pan_tilt) ===== */
 const char* WIFI_SSID     = "OWNIT-7B92";
@@ -160,8 +167,11 @@ int targetAngle[NUM_JOINTS];   // servo angle we're ramping toward
  * Non-blocking (unlike the pan/tilt sketch's delay() ramp - 6 joints ramping one after
  * another would block too long): every SMOOTH_STEP_MS, each joint not yet at its target
  * moves 1 degree toward it, all joints together. 8ms/degree ~= 125 deg/s, comfortably
- * faster than the app's 2 degrees per 100ms tick, so the arm keeps up with a held button. */
+ * faster than the app's 2 degrees per 100ms tick, so the arm keeps up with a held button.
+ * stepDegrees (from the command's "step") scales that: N degrees per tick = N x 125 deg/s. */
 const int SMOOTH_STEP_MS = 8;
+const int MAX_STEP_DEGREES = 4;
+int stepDegrees = 1;
 unsigned long lastSmoothStepMillis = 0;
 bool wasMoving = false;
 
@@ -170,21 +180,32 @@ bool wasMoving = false;
 const int STATE_PUBLISH_MS = 200; // the app's robotic-arm.html animates from these
 unsigned long lastStatePublishMillis = 0;
 
-/* ===== Last-stable-position persistence (same idea as the pan/tilt sketch) =====
- * The PCA9685 can't read a servo's position back, so on boot we assume the arm is still
- * where it was last left and write that, instead of snapping every joint to its default.
- * The retained MQTT state arriving right after connect is then ramped to smoothly. */
-const int POSITION_SAVE_DELAY_MS = 2500;
-const int EEPROM_SIZE   = 1 + NUM_JOINTS;
-const byte EEPROM_MAGIC = 0x52; // arbitrary - distinguishes a saved position from erased flash
-
-unsigned long lastMoveMillis = 0;
-bool positionDirty = false;
-
 WiFiClient espClient;
 PubSubClient mqtt(espClient);
 
 int selectedJoint = -1; // serial control
+
+/* No servo is driven until WiFi + MQTT are up and the first position/Home command arrives:
+ * at boot every channel stays signal-less (servos limp), and the first command writes all six
+ * straight to its targets - one jump, since the PCA9685 can't read back where they are.
+ * After that, motion pauses whenever MQTT is down and resumes once it's back. */
+bool servosActive = false;
+
+bool motionAllowed() {
+  return WiFi.status() == WL_CONNECTED && mqtt.connected();
+}
+
+void activateServos() {
+  if (servosActive) return;
+  servosActive = true;
+  for (int i = 0; i < NUM_JOINTS; i++) {
+    currentAngle[i] = targetAngle[i];
+    writeServo(i, currentAngle[i]);
+  }
+  Serial.println("[Servo] First command - servos on");
+  printPosition();
+  publishState();
+}
 
 /* ===== Servo helpers ===== */
 int clampServo(int i, int angle) {
@@ -210,67 +231,28 @@ void setTarget(int i, int servoAngle) {
   targetAngle[i] = clampServo(i, servoAngle);
 }
 
-bool anyJointMoving() {
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    if (currentAngle[i] != targetAngle[i]) return true;
-  }
-  return false;
-}
-
 void stepTowardTargets() {
+  if (!servosActive || !motionAllowed()) return;
   if (millis() - lastSmoothStepMillis < SMOOTH_STEP_MS) return;
   lastSmoothStepMillis = millis();
 
   bool moved = false;
   for (int i = 0; i < NUM_JOINTS; i++) {
-    if (currentAngle[i] == targetAngle[i]) continue;
-    currentAngle[i] += (targetAngle[i] > currentAngle[i]) ? 1 : -1;
+    int diff = targetAngle[i] - currentAngle[i];
+    if (diff == 0) continue;
+    // Up to stepDegrees, never past the target.
+    currentAngle[i] += constrain(diff, -stepDegrees, stepDegrees);
     writeServo(i, currentAngle[i]);
     moved = true;
   }
 
   if (moved) {
-    lastMoveMillis = millis();
-    positionDirty = true;
     wasMoving = true;
     if (millis() - lastStatePublishMillis >= STATE_PUBLISH_MS) publishState();
   } else if (wasMoving) {
     wasMoving = false;
     printPosition();
     publishState();
-  }
-}
-
-/* ===== EEPROM ===== */
-void loadPosition() {
-  EEPROM.begin(EEPROM_SIZE);
-  bool saved = EEPROM.read(0) == EEPROM_MAGIC;
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    currentAngle[i] = clampServo(i, saved ? (int) EEPROM.read(1 + i) : JOINTS[i].servoDefault);
-    targetAngle[i] = currentAngle[i];
-  }
-  if (saved) {
-    Serial.println("[EEPROM] Loaded last position");
-  } else {
-    Serial.println("[EEPROM] No saved position yet - using defaults");
-    positionDirty = true;
-    lastMoveMillis = millis();
-  }
-}
-
-void savePosition() {
-  EEPROM.write(0, EEPROM_MAGIC);
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    EEPROM.write(1 + i, currentAngle[i]);
-  }
-  EEPROM.commit();
-  Serial.println("[EEPROM] Saved stable position");
-}
-
-void maybeSavePosition() {
-  if (positionDirty && millis() - lastMoveMillis >= POSITION_SAVE_DELAY_MS) {
-    savePosition();
-    positionDirty = false;
   }
 }
 
@@ -335,13 +317,17 @@ void addDeviceBlock(JsonDocument& doc) {
  * logical angles. Attributes = static device info + the raw servo angles. */
 void publishState() {
   lastStatePublishMillis = millis();
-  if (!mqtt.connected()) return;
+  // Nothing written to the servos yet, so there's no real position to report.
+  if (!mqtt.connected() || !servosActive) return;
 
   JsonDocument state;
   state["name"] = DEVICE_NAME;
   for (int i = 0; i < NUM_JOINTS; i++) {
     state[JOINTS[i].key] = lroundf(servoToLogical(i, currentAngle[i]));
   }
+  // The ramp step this move ran at, and the speed it gives (servo degrees per second).
+  state["step"] = stepDegrees;
+  state["speed"] = stepDegrees * 1000 / SMOOTH_STEP_MS;
   char payload[256];
   serializeJson(state, payload, sizeof(payload));
   mqtt.publish(TOPIC_STATE, payload, true);
@@ -401,6 +387,7 @@ void processPendingHome() {
   hasPendingHome = false;
   Serial.println("[MQTT<-] Home event");
   homeAllJoints();
+  activateServos();
 }
 
 void homeAllJoints() {
@@ -429,6 +416,20 @@ void processPendingState() {
   Serial.print("[MQTT<-] ");
   Serial.println(pendingState);
 
+  // Ramp step first, so this message's move already runs at it.
+  JsonVariant step = doc["step"];
+  if (step.is<int>() || step.is<float>()) {
+    int newStep = constrain((int) lroundf(step.as<float>()), 1, MAX_STEP_DEGREES);
+    if (newStep != stepDegrees) {
+      stepDegrees = newStep;
+      Serial.print("[MQTT<-] Step ");
+      Serial.print(stepDegrees);
+      Serial.print(" deg/tick = ");
+      Serial.print(stepDegrees * 1000 / SMOOTH_STEP_MS);
+      Serial.println(" deg/s");
+    }
+  }
+
   // Missing keys keep their current target - a partial message moves only what it names.
   for (int i = 0; i < NUM_JOINTS; i++) {
     JsonVariant v = doc[JOINTS[i].key];
@@ -436,6 +437,7 @@ void processPendingState() {
       setTarget(i, logicalToServo(i, v.as<float>()));
     }
   }
+  activateServos();
 }
 
 /* ===== Connectivity ===== */
@@ -564,12 +566,13 @@ void setup() {
     pwm.setPWM(ch, 0, 0); // no signal on unused channels
   }
 
-  loadPosition();
+  // Servos stay signal-less (above) until WiFi + MQTT are up and a command arrives - see
+  // servosActive. Until then, joints a first partial command doesn't name go to servoDefault.
   for (int i = 0; i < NUM_JOINTS; i++) {
-    writeServo(i, currentAngle[i]);
+    currentAngle[i] = targetAngle[i] = JOINTS[i].servoDefault;
   }
-  Serial.println("[Boot] Servos holding last saved position");
-  printPosition();
+  Serial.println("[Boot] Servos off until WiFi + MQTT connect");
+
   printMenu();
 
   connectWiFi();
@@ -587,6 +590,5 @@ void loop() {
   processPendingHome();
   processPendingState();
   stepTowardTargets();
-  maybeSavePosition();
   handleSerial();
 }
